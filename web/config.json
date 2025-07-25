@@ -1,0 +1,13 @@
+{
+  "site": {
+    "name": "Drupal+NextJS Starter",
+    "description": "A modern, production-ready starter kit for building decoupled Drupal 11 and NextJS applications with seamless integration",
+    "heroImage": "https://picsum.photos/id/62/1920/800"
+  },
+  "social": {
+    "github": "https://github.com/your-org/d11-nextjs-starter",
+    "twitter": "https://twitter.com/yourorg",
+    "linkedin": "https://linkedin.com/company/yourorg",
+    "youtube": "https://youtube.com/@yourorg"
+  }
+}

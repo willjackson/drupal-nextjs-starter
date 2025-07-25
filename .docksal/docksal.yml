@@ -1,0 +1,44 @@
+services:
+  # Web
+  web:
+    extends:
+      file: ${HOME}/.docksal/stacks/services.yml
+      service: apache
+    depends_on:
+      - cli
+    environment:
+      - APACHE_DOCUMENTROOT=/var/www/web
+    labels:
+      - io.docksal.virtual-host=${VIRTUAL_HOST}
+
+  # Drupal site
+  drupal:
+    extends:
+      file: ${HOME}/.docksal/stacks/services.yml
+      service: apache
+    labels:
+      - io.docksal.virtual-host=drupal.${VIRTUAL_HOST}
+    depends_on:
+      - cli
+    environment:
+      - APACHE_DOCUMENTROOT=/var/www/drupal/web
+      - APACHE_FILE_PROXY
+
+  # CLI
+  cli:
+    extends:
+      file: ${HOME}/.docksal/stacks/services.yml
+      service: cli
+    labels:
+      - io.docksal.virtual-host=${VIRTUAL_HOST}
+      - io.docksal.virtual-port=3000
+    environment:
+      - VIRTUAL_HOST
+      - NODE_ENV=development
+      - MCP_ADMIN_USER
+      - MCP_ADMIN_PASS
+      - OPEN_AI_API_KEY=${OPEN_AI_API_KEY}
+    volumes:
+      - ${PROJECT_ROOT}/.docksal/etc/drush:/var/www/drupal/drush:ro
+    expose:
+      - "3000"

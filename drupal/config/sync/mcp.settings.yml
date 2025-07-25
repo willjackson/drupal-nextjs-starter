@@ -1,0 +1,10 @@
+enable_auth: true
+auth_settings:
+  enable_token_auth: false
+  token_key: ''
+  enable_basic_auth: true
+  token_user: ''
+plugins:
+  general:
+    enabled: true
+    config: {  }

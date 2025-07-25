@@ -1,0 +1,370 @@
+/* Drupal-specific content styles to complement Tailwind prose */
+.drupal-content {
+  /* Ensure proper spacing for all elements */
+  line-height: 1.7;
+}
+
+/* Fallback styles for when prose classes don't work */
+.drupal-content h1, .drupal-content h2, .drupal-content h3, .drupal-content h4, .drupal-content h5, .drupal-content h6 {
+  font-weight: 700;
+  color: var(--foreground);
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+
+.drupal-content h1 {
+  font-size: 2.25rem;
+  margin-top: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.drupal-content h2 {
+  font-size: 1.875rem;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+
+.drupal-content h3 {
+  font-size: 1.5rem;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.drupal-content h4 {
+  font-size: 1.25rem;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.drupal-content p {
+  color: var(--foreground);
+  line-height: 1.7;
+  margin-bottom: 1rem;
+}
+
+.drupal-content a {
+  color: var(--primary);
+  text-decoration: underline;
+}
+
+.drupal-content a:hover {
+  color: var(--accent);
+}
+
+.drupal-content strong {
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.drupal-content em {
+  font-style: italic;
+  color: var(--foreground);
+}
+
+.drupal-content ul, .drupal-content ol {
+  color: var(--foreground);
+  margin-bottom: 1rem;
+  padding-left: 1.5rem;
+}
+
+.drupal-content ul {
+  list-style-type: disc;
+}
+
+.drupal-content ol {
+  list-style-type: decimal;
+}
+
+.drupal-content li {
+  margin-bottom: 0.25rem;
+  color: var(--foreground);
+}
+
+.drupal-content blockquote {
+  border-left: 4px solid var(--primary);
+  padding-left: 1.5rem;
+  margin: 1.5rem 0;
+  font-style: italic;
+  color: var(--muted);
+}
+
+.drupal-content code {
+  background-color: var(--card);
+  color: var(--accent);
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-family: 'Courier New', monospace;
+}
+
+.drupal-content pre {
+  background-color: var(--card);
+  color: var(--foreground);
+  padding: 1rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  margin: 1.5rem 0;
+}
+
+.drupal-content pre code {
+  background-color: transparent;
+  padding: 0;
+  border-radius: 0;
+  color: inherit;
+}
+
+.drupal-content hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 2rem 0;
+}
+
+/* Drupal text formatting */
+.drupal-content .text-align-left { text-align: left; }
+.drupal-content .text-align-center { text-align: center; }
+.drupal-content .text-align-right { text-align: right; }
+.drupal-content .text-align-justify { text-align: justify; }
+
+/* Drupal media embeds */
+.drupal-content .media {
+  margin: 2rem 0;
+}
+
+.drupal-content .media--type-image {
+  text-align: center;
+}
+
+.drupal-content .media--type-image img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.drupal-content .field--name-field-media-image {
+  margin: 0;
+}
+
+/* Drupal figure and caption styles */
+.drupal-content figure {
+  margin: 2rem 0;
+  text-align: center;
+}
+
+.drupal-content figcaption {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--muted);
+  font-style: italic;
+}
+
+/* Drupal embedded entities */
+.drupal-content .embedded-entity {
+  margin: 2rem 0;
+}
+
+/* Drupal links */
+.drupal-content a[href^="http"]:not([href*="will.gg"]):after {
+  content: " ↗";
+  font-size: 0.75em;
+  opacity: 0.7;
+}
+
+/* Drupal tables - ensure they're responsive */
+.drupal-content table {
+  display: block;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin: 1.5rem 0;
+}
+
+/* Drupal align classes */
+.drupal-content .align-left {
+  float: left;
+  margin: 0.5rem 1.5rem 1rem 0;
+  max-width: 50%;
+}
+
+.drupal-content .align-right {
+  float: right;
+  margin: 0.5rem 0 1rem 1.5rem;
+  max-width: 50%;
+}
+
+.drupal-content .align-center {
+  display: block;
+  margin: 2rem auto;
+  text-align: center;
+}
+
+/* Clear floats after content */
+.drupal-content::after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+/* Drupal video embeds */
+.drupal-content .video-embed-field-provider-youtube,
+.drupal-content .video-embed-field-provider-vimeo {
+  position: relative;
+  padding-bottom: 56.25%; /* 16:9 aspect ratio */
+  height: 0;
+  overflow: hidden;
+  margin: 2rem 0;
+}
+
+.drupal-content .video-embed-field-provider-youtube iframe,
+.drupal-content .video-embed-field-provider-vimeo iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  border-radius: 0.5rem;
+}
+
+/* Drupal CKEditor specific classes */
+.drupal-content .ck-content {
+  font-family: inherit;
+}
+
+/* Code blocks from Drupal */
+.drupal-content pre {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+/* Drupal block quotes */
+.drupal-content blockquote {
+  position: relative;
+  padding-left: 2rem;
+}
+
+.drupal-content blockquote:before {
+  content: "\201C";
+  position: absolute;
+  left: 0;
+  top: -0.5rem;
+  font-size: 3rem;
+  color: var(--primary);
+  opacity: 0.3;
+  font-weight: bold;
+}
+
+/* Lists with custom markers */
+.drupal-content ul li::marker {
+  color: var(--primary);
+}
+
+.drupal-content ol li::marker {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+/* Nested lists spacing */
+.drupal-content ul ul,
+.drupal-content ol ol,
+.drupal-content ul ol,
+.drupal-content ol ul {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Definition lists */
+.drupal-content dl {
+  margin: 1.5rem 0;
+}
+
+.drupal-content dt {
+  font-weight: 700;
+  margin-top: 1rem;
+  color: var(--foreground);
+}
+
+.drupal-content dd {
+  margin-left: 2rem;
+  margin-top: 0.25rem;
+  color: var(--muted);
+}
+
+/* Horizontal rules */
+.drupal-content hr {
+  margin: 3rem 0;
+  border: none;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border) 20%, var(--border) 80%, transparent);
+}
+
+/* Details/Summary elements */
+.drupal-content details {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+}
+
+.drupal-content summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--foreground);
+  user-select: none;
+}
+
+.drupal-content details[open] summary {
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+/* Drupal messages/alerts that might be in content */
+.drupal-content .messages {
+  padding: 1rem;
+  margin: 1.5rem 0;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border);
+}
+
+.drupal-content .messages--status {
+  background: rgba(16, 185, 129, 0.1);
+  border-color: rgba(16, 185, 129, 0.3);
+  color: var(--foreground);
+}
+
+.drupal-content .messages--warning {
+  background: rgba(245, 158, 11, 0.1);
+  border-color: rgba(245, 158, 11, 0.3);
+  color: var(--foreground);
+}
+
+.drupal-content .messages--error {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: var(--foreground);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .drupal-content .align-left,
+  .drupal-content .align-right {
+    float: none;
+    display: block;
+    margin: 1.5rem auto;
+    max-width: 100%;
+  }
+  
+  .drupal-content blockquote {
+    padding-left: 1.5rem;
+  }
+  
+  .drupal-content blockquote:before {
+    font-size: 2rem;
+  }
+  
+  .drupal-content dd {
+    margin-left: 1rem;
+  }
+}

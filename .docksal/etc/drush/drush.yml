@@ -1,0 +1,2 @@
+options:
+  uri: 'http://drupal.${env.VIRTUAL_HOST}'
