@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+#: exec_target = cli
+
+## Description: Customize CLI container
+## Usage: fin install-drush
+## Example: fin install-drush
+
+echo "export PATH=\$PATH:/var/www/drupal/vendor/bin" >> /home/docker/.bashrc
+source /home/docker/.bashrc

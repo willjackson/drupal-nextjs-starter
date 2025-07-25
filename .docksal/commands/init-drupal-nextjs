@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+
+#: exec_target = cli
+
+## Initialize configuration in Drupal for Next.js site
+##
+## Usage: fin init-drupal-nextjs
+
+# Abort if anything fails
+set -e
+
+#-------------------------- Settings --------------------------------
+
+# PROJECT_ROOT is set as env variable in cli
+DRUPAL_PATH="${PROJECT_ROOT}/drupal"
+NEXTJS_PATH="${PROJECT_ROOT}/web"
+SITE_DIRECTORY="default"
+SITEDIR_PATH="${DRUPAL_PATH}/web/sites/${SITE_DIRECTORY}"
+
+#-------------------------- END: Settings --------------------------------
+
+#-------------------------- Functions --------------------------------
+
+# Install Next.js dependencies
+init_nextjs_recipe() {
+	cd "${DRUPAL_PATH}"
+	drush recipe ../recipes/saplings_nextjs --input=saplings_nextjs.site_url=${VIRTUAL_HOST}
+}
+
+
+#-------------------------- END: Functions --------------------------------
+
+#-------------------------- Execution --------------------------------
+
+echo "Initializing Drupal 11 for Next.js site..."
+
+# Initialize Next.js
+init_nextjs_recipe
+
+#-------------------------- END: Execution --------------------------------

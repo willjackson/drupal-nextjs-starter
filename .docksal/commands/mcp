@@ -1,0 +1,111 @@
+#!/usr/bin/env bash
+
+#: exec_target = cli
+
+## Display MCP server connection information for Drupal site
+##
+## Usage: fin mcp
+
+# Abort if anything fails
+set -e
+
+#-------------------------- Settings --------------------------------
+
+# PROJECT_ROOT is set as env variable in cli
+DRUPAL_PATH="${PROJECT_ROOT}/drupal"
+SITE_DIRECTORY="default"
+
+#-------------------------- END: Settings --------------------------------
+
+#-------------------------- Functions --------------------------------
+
+# Check if MCP module is enabled
+check_mcp_module_status() {
+    echo "Checking MCP module status..."
+    cd "${DRUPAL_PATH}"
+
+    # Check if drush is available
+    if ! command -v drush &> /dev/null; then
+        echo "Error: Drush command not found. Make sure you're running this from within the Docksal environment."
+        exit 1
+    fi
+
+    # Check module status using drush
+    if drush pm:list --status=enabled --type=module | grep -q "mcp"; then
+        echo "✓ MCP module is ENABLED"
+        return 0
+    else
+        echo "✗ MCP module is NOT ENABLED"
+        echo ""
+        echo "To enable the MCP module, run:"
+        echo "  fin drush en mcp -y"
+        return 1
+    fi
+}
+
+# Display MCP server configuration
+display_mcp_config() {
+    echo ""
+    echo "=== MCP Server Configuration ==="
+    echo ""
+    echo "Add this configuration to your MCP client (e.g., Claude Desktop):"
+    echo ""
+
+    # Get the virtual host from environment or use default
+    if [[ -n "${VIRTUAL_HOST}" ]]; then
+        virtual_host="${VIRTUAL_HOST}"
+    else
+        # Try to get from .docksal/docksal.env or use a default pattern
+        if [[ -f "${PROJECT_ROOT}/.docksal/docksal.env" ]]; then
+            virtual_host=$(grep "VIRTUAL_HOST" "${PROJECT_ROOT}/.docksal/docksal.env" | cut -d'=' -f2 | tr -d '"' | head -1)
+        fi
+
+        # Fallback to project directory name + .docksal
+        if [[ -z "${virtual_host}" ]]; then
+            project_name=$(basename "${PROJECT_ROOT}")
+            virtual_host="${project_name}.docksal"
+        fi
+    fi
+
+    echo "{"
+    echo "  \"mcpServers\": {"
+    echo "    \"mcp-server-drupal\": {"
+    echo "      \"command\": \"docker\","
+    echo "      \"args\": ["
+    echo "        \"run\", \"-i\", \"--rm\","
+    echo "        \"-e\", \"DRUPAL_AUTH_USER="${MCP_ADMIN_USER}"\""","
+    echo "        \"-e\", \"DRUPAL_AUTH_PASSWORD="${MCP_ADMIN_PASS}"\""","
+    echo "        \"--network=host\", \"ghcr.io/omedia/mcp-server-drupal:latest\","
+    echo "        \"--drupal-url=http://drupal.${virtual_host}\","
+    echo "        \"--unsafe-net\""
+    echo "      ],"
+    echo "       \"env\": {"
+    echo "        \"DRUPAL_AUTH_USER\": \"${MCP_ADMIN_USER}"\"","
+    echo "        \"DRUPAL_AUTH_PASSWORD\": \"${MCP_ADMIN_PASS}"\"""
+    echo "      }"
+    echo "    }"
+    echo "  }"
+    echo "}"
+}
+
+#-------------------------- END: Functions --------------------------------
+
+#-------------------------- Execution --------------------------------
+
+echo "MCP Server Connection Information"
+echo "================================="
+echo ""
+
+# Check MCP module status
+if check_mcp_module_status; then
+    # Module is enabled, show configuration
+    display_mcp_config
+else
+    # Module is not enabled
+    echo ""
+    echo "Enable the MCP module first to get the connection configuration."
+fi
+
+echo ""
+
+#-------------------------- END: Execution --------------------------------

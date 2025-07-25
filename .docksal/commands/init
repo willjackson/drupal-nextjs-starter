@@ -1,0 +1,74 @@
+#!/usr/bin/env bash
+
+## Initialize stack and site (full reset)
+##
+## Usage: fin init [--content] [--ai]
+## Options:
+##   --content  Install sample content automatically
+##   --ai      Install AI Tools automatically
+
+# Abort if anything fails
+set -e
+
+# Parse command line arguments
+INSTALL_CONTENT=false
+INSTALL_AI=false
+
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    --content)
+      INSTALL_CONTENT=true
+      shift
+      ;;
+    --ai)
+      INSTALL_AI=true
+      shift
+      ;;
+    *)
+      echo "Unknown option: $1"
+      echo "Usage: fin init [--content] [--ai]"
+      exit 1
+      ;;
+  esac
+done
+
+# Stack initialization
+echo -e "Initializing stack..."
+fin reset -f
+
+echo "Waiting 10s for MySQL to initialize...";
+sleep 10
+
+# Site initialization
+echo -e "Initializing site..."
+fin install-drush
+fin init-site
+fin init-drupal-nextjs
+
+# Generate sample content if requested
+echo ""
+if [[ $INSTALL_CONTENT == true ]]; then
+    echo "Generating sample content..."
+    fin generate-content
+else
+    echo "Skipping sample content generation (use --content flag to install automatically)"
+fi
+
+echo "Starting development server in background..."
+fin develop --background
+
+echo "Site initialization complete!"
+echo ""
+
+# Install AI Tools if requested
+if [[ $INSTALL_AI == true ]]; then
+    echo "Installing AI Tools..."
+    fin init-ai
+else
+    echo "Skipping AI Tools installation (use --ai flag to install automatically)"
+fi
+
+echo ""
+fin show-links
+
+#-------------------------- END: Execution --------------------------------

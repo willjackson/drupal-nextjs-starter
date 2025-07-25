@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+
+## Initialize AI features configuration in Drupal
+##
+## Usage: fin init-ai
+
+# Abort if anything fails
+set -e
+
+echo "============================================================"
+echo "Initializing AI Features for Drupal"
+echo "============================================================"
+echo ""
+
+# Install AI tools (agents, packages, OpenAI setup)
+echo "Step 1: Installing AI Tools and Agents..."
+fin init-ai-tools
+
+echo ""
+echo "============================================================"
+
+# Check if MCP environment variables are set
+if [[ -n "${MCP_ADMIN_USER}" && -n "${MCP_ADMIN_PASS}" ]]; then
+    echo "Step 2: MCP environment variables detected. Installing MCP features..."
+    fin init-mcp
+    echo "============================================================"
+    fin mcp
+else
+    echo "Step 2: MCP environment variables not set."
+    echo ""
+    echo "To complete the MCP setup:"
+    echo "1. Copy the example environment file:"
+    echo "   cp .docksal/docksal.env .docksal/docksal-local.env"
+    echo ""
+    echo "2. Edit .docksal/docksal-local.env and add your MCP admin credentials:"
+    echo "   MCP_ADMIN_USER=your_unique_mcp_admin_username"
+    echo "   MCP_ADMIN_PASS=your_secure_password_here"
+    echo ""
+    echo "3. Restart your Docksal environment:"
+    echo "   fin restart"
+    echo ""
+    echo "4. Run the MCP installation:"
+    echo "   fin init-mcp"
+    echo ""
+    echo "5. Display MCP connection info:"
+    echo "   fin mcp"
+fi
+
+echo ""
+echo "============================================================"
+echo "AI Features Initialization Complete!"
+echo "============================================================"
+
+#-------------------------- END: Execution --------------------------------

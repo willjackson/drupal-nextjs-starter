@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+#: exec_target = cli
+
+## Stop the development server and kill the tmux session.
+##
+## Usage: fin develop-stop
+
+# Abort if anything fails
+set -e
+
+# Check if the tmux session exists
+if tmux has-session -t BlogDev 2>/dev/null; then
+  echo "Stopping BlogDev session..."
+  tmux kill-session -t BlogDev
+  echo "BlogDev session stopped."
+else
+  echo "BlogDev session is not running."
+fi

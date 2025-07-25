@@ -1,0 +1,114 @@
+#!/usr/bin/env bash
+
+#: exec_target = cli
+
+## Initialize/install Drupal 11 + Next.js site
+##
+## Usage: fin init-site
+
+# Abort if anything fails
+set -e
+
+#-------------------------- Settings --------------------------------
+
+# PROJECT_ROOT is set as env variable in cli
+DRUPAL_PATH="${PROJECT_ROOT}/drupal"
+NEXTJS_PATH="${PROJECT_ROOT}/web"
+SITE_DIRECTORY="default"
+SITEDIR_PATH="${DRUPAL_PATH}/web/sites/${SITE_DIRECTORY}"
+
+#-------------------------- END: Settings --------------------------------
+
+#-------------------------- Functions --------------------------------
+
+# Install Next.js dependencies
+init_nextjs() {
+	echo "Installing Next.js dependencies..."
+	cd "${NEXTJS_PATH}"
+	npm install
+}
+
+# Initialize local settings files
+init_drupal_settings () {
+	echo 'Setting up local settings files...'
+
+	# Check if settings.php exists, if not create it from default.settings.php
+	if [ ! -f "${SITEDIR_PATH}/settings.php" ]; then
+		echo "Creating settings.php from default.settings.php..."
+		cp "${SITEDIR_PATH}/default.settings.php" "${SITEDIR_PATH}/settings.php"
+
+		# Uncomment the settings.local.php include lines at the end of the file
+		sed -i 's/^#$//' "${SITEDIR_PATH}/settings.php"
+		sed -i 's/^# if (file_exists(\$app_root/if (file_exists($app_root/' "${SITEDIR_PATH}/settings.php"
+		sed -i 's/^#   include \$app_root/  include $app_root/' "${SITEDIR_PATH}/settings.php"
+		sed -i 's/^# }$/}/' "${SITEDIR_PATH}/settings.php"
+
+		echo "settings.php created and configured to include settings.local.php"
+	else
+		echo "settings.php already exists, skipping creation"
+	fi
+
+	# Create the symlink to settings.local.php
+	echo 'Linking settings.local.php for local dev'
+	ln -sf "${PROJECT_ROOT}/.docksal/etc/conf/settings.php" "${SITEDIR_PATH}/settings.local.php"
+}
+
+# Initialize Next.js environment
+init_nextjs_env() {
+	echo "Setting up Next.js environment..."
+	cd "${NEXTJS_PATH}"
+	if [ ! -f .env.local ] && [ -f .env.example ]; then
+		cp .env.example .env.local
+		sed -i "s/localhost:8080/drupal.${VIRTUAL_HOST}/g" .env.local
+		echo ".env.local created and configured"
+	elif [ -f .env.local ]; then
+		echo ".env.local already exists, skipping creation"
+	else
+		echo "Warning: .env.example not found"
+	fi
+}
+
+# Install Drupal dependencies and initialize site
+init_drupal() {
+	echo "Installing Drupal dependencies..."
+	cd "${DRUPAL_PATH}"
+	composer install
+
+	# Initialize local Drupal settings
+  init_drupal_settings
+
+	echo "Installing Drupal site..."
+	drush si standard --site-name="Drupal 11" --yes
+
+	echo "Clearing caches..."
+	drush cache:rebuild
+}
+
+# Fix file/folder permissions
+fix_permissions() {
+	echo "Setting up permissions..."
+	mkdir -p "${SITEDIR_PATH}/files/private"
+	chmod 755 "${SITEDIR_PATH}"
+	chmod 755 "${SITEDIR_PATH}/files/private"
+}
+
+#-------------------------- END: Functions --------------------------------
+
+#-------------------------- Execution --------------------------------
+
+echo "Initializing Drupal 11 + Next.js site..."
+
+# Initialize Next.js
+init_nextjs
+
+# Initialize Next.js environment
+init_nextjs_env
+
+# Initialize Drupal
+init_drupal
+
+# Fix permissions
+fix_permissions
+
+
+#-------------------------- END: Execution --------------------------------

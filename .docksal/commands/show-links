@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+#: exec_target = cli
+
+## Display site links for Drupal and NextJS
+##
+## Usage: fin show-links
+
+# Abort if anything fails
+set -e
+
+# PROJECT_ROOT is set as env variable in cli
+DRUPAL_PATH="${PROJECT_ROOT}/drupal"
+
+echo "🔗 Site Links:"
+echo "=============="
+
+cd "${DRUPAL_PATH}"
+
+echo "Drupal Admin:"
+drush uli
+
+echo ""
+echo "NextJS Site:"
+echo "http://${VIRTUAL_HOST}"

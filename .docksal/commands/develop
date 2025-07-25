@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+
+#: exec_target = cli
+
+## Run development server for NextJS blog.
+##
+## Usage: fin develop [--background]
+
+# Abort if anything fails
+set -e
+
+# Parse flags
+attach_session=true
+
+# Check for flags
+for arg in "$@"; do
+  case $arg in
+    --background)
+      attach_session=false
+      shift # Remove --background from processing
+      ;;
+  esac
+done
+
+# Check if tmux is installed, if not install it
+if ! command -v tmux &> /dev/null; then
+  echo "tmux could not be found, installing..."
+  sudo apt-get update && sudo apt-get install tmux -y
+fi
+
+# Check if the tmux session already exists
+if tmux has-session -t BlogDev 2>/dev/null; then
+  echo "BlogDev already running."
+  if $attach_session; then
+    echo "Connecting to BlogDev..."
+    tmux attach-session -t BlogDev
+  else
+    echo "BlogDev will continue running in the background."
+  fi
+  exit 0
+fi
+
+# Start tmux with a new session, naming the session 'BlogDev'
+tmux new-session -d -s BlogDev -n 'NextJS'
+
+# Start the NextJS development server
+# Use -H 0.0.0.0 to ensure it's accessible from outside the container
+tmux send-keys -t BlogDev:0 'cd /var/www/web && npm run dev -- -H 0.0.0.0 2>&1 | tee /tmp/nextjs-dev.log' C-m
+
+# Ensure tmux prefix key is set to Ctrl + B
+tmux unbind C-b
+tmux set -g prefix C-b
+tmux bind C-b send-prefix
+
+# Bind 'q' to run the stop script
+tmux bind-key q confirm-before -p "Are you sure you want to kill this session? (y/n)" "run-shell '/var/www/.docksal/commands/develop-stop'"
+
+# Attach to the tmux session if not running in background
+if $attach_session; then
+  tmux attach-session -t BlogDev
+else
+  echo "Session 'BlogDev' started in background."
+fi

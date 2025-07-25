@@ -1,0 +1,111 @@
+#!/usr/bin/env bash
+
+#: exec_target = cli
+
+## Initialize MCP (Model Context Protocol) features
+##
+## Usage: fin init-mcp
+
+
+# Abort if anything fails
+set -e
+
+#-------------------------- Settings --------------------------------
+
+# PROJECT_ROOT is set as env variable in cli
+DRUPAL_PATH="${PROJECT_ROOT}/drupal"
+
+#-------------------------- END: Settings --------------------------------
+
+#-------------------------- Functions --------------------------------
+
+# Check for MCP environment variables
+check_mcp_environment() {
+	if [[ -z "${MCP_ADMIN_USER}" || -z "${MCP_ADMIN_PASS}" ]]; then
+		echo ""
+		echo "============================================================"
+		echo "ERROR: MCP Environment Variables Not Set"
+		echo "============================================================"
+		echo ""
+		echo "The following environment variables are required but not set:"
+		echo "  - MCP_ADMIN_USER"
+		echo "  - MCP_ADMIN_PASS"
+		echo ""
+		echo "Please follow these steps:"
+		echo "1. Copy the example environment file:"
+		echo "   cp .docksal/docksal.env .docksal/docksal-local.env"
+		echo ""
+		echo "2. Edit .docksal/docksal-local.env and add your MCP admin credentials:"
+		echo "   MCP_ADMIN_USER=your_unique_mcp_admin_username"
+		echo "   MCP_ADMIN_PASS=your_secure_password_here"
+		echo ""
+		echo "3. Restart your Docksal environment to load the new variables:"
+		echo "   fin restart"
+		echo ""
+		echo "4. Run this command again:"
+		echo "   fin init-mcp"
+		echo ""
+		echo "============================================================"
+		exit 1
+	fi
+}
+
+# Add MCP User
+install_mcp_user() {
+	echo "Setting up MCP admin user..."
+	cd "${DRUPAL_PATH}"
+
+	# Check if user already exists
+	if drush user:information "${MCP_ADMIN_USER}" &>/dev/null; then
+		echo "Updating existing user: ${MCP_ADMIN_USER}"
+		drush user:password "${MCP_ADMIN_USER}" "${MCP_ADMIN_PASS}" &>/dev/null
+		drush user:role:add administrator "${MCP_ADMIN_USER}" &>/dev/null
+	else
+		echo "Creating MCP admin user: ${MCP_ADMIN_USER}"
+		drush user:create "${MCP_ADMIN_USER}" \
+			--mail="${MCP_ADMIN_USER}@example.com" \
+			--password="${MCP_ADMIN_PASS}" &>/dev/null
+		drush user:role:add administrator "${MCP_ADMIN_USER}" &>/dev/null
+		drush user:unblock "${MCP_ADMIN_USER}" &>/dev/null
+	fi
+
+	echo "MCP admin user ready."
+}
+
+# Install MCP recipe
+install_mcp_recipe() {
+	echo "Installing MCP recipe..."
+	cd "${DRUPAL_PATH}"
+
+	echo "Installing saplings_ai_mcp recipe..."
+	drush recipe ../recipes/saplings_ai_mcp
+}
+
+#-------------------------- END: Functions --------------------------------
+
+#-------------------------- Execution --------------------------------
+
+echo "Initializing MCP (Model Context Protocol) features..."
+
+# Check for required environment variables
+check_mcp_environment
+
+# Install MCP User
+install_mcp_user
+
+# Install MCP recipe
+install_mcp_recipe
+
+echo ""
+echo "============================================================"
+echo "MCP initialization completed successfully!"
+echo "============================================================"
+echo ""
+echo "Your MCP admin user details:"
+echo "  Username: ${MCP_ADMIN_USER}"
+echo "  Password: ${MCP_ADMIN_PASS}"
+echo ""
+echo "You can now use MCP features with your Drupal site."
+echo ""
+
+#-------------------------- END: Execution --------------------------------
