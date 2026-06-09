@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+/* Tailwind v4 ignores the `darkMode` setting in tailwind.config.ts unless the JS
+   config is loaded via @config. Wire the `dark:` variant to the [data-theme="dark"]
+   attribute that ThemeToggle sets on <html>, so dark: utilities follow the toggle
+   (not just the OS prefers-color-scheme). */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
 /* Fade-in animations */
 @keyframes fade-in {
   from {

@@ -4,13 +4,13 @@ import { notFound } from 'next/navigation';
 import TagContent from '@/components/TagContent';
 
 interface PageProps {
-  params: {
+  params: Promise<{
     tag: string;
-  };
+  }>;
 }
 
-export function generateMetadata({ params }: PageProps): Metadata {
-  const tag = decodeURIComponent(params.tag);
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const tag = decodeURIComponent((await params).tag);
   return {
     title: `${tag} - Tags - Will's Tech Blog`,
     description: `Browse all content tagged with "${tag}" - posts and events.`,
@@ -35,7 +35,8 @@ export async function generateStaticParams() {
 }
 
 export default async function TagPage({ params }: PageProps) {
-  const tagParam = decodeURIComponent(params.tag);
+  const { tag } = await params;
+  const tagParam = decodeURIComponent(tag);
   const articles = await getAllArticlesFromDrupal();
   const events = await getAllEventsFromDrupal();
 
