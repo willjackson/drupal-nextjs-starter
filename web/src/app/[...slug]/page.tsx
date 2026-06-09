@@ -4,16 +4,17 @@ import { ImageWithFallback } from '@/components/ImageWithFallback';
 import '@/styles/drupal-content.css';
 
 interface PageProps {
-  params: {
+  params: Promise<{
     slug: string[];
-  };
+  }>;
 }
 
 export const dynamic = 'force-dynamic';
 
 export default async function DynamicPage({ params }: PageProps) {
   // Reconstruct the full path from slug segments
-  const fullPath = Array.isArray(params.slug) ? params.slug.join('/') : params.slug;
+  const { slug } = await params;
+  const fullPath = Array.isArray(slug) ? slug.join('/') : slug;
   const page = await getPageFromDrupal(fullPath);
 
   if (!page) {
@@ -96,7 +97,8 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: PageProps) {
-  const fullPath = Array.isArray(params.slug) ? params.slug.join('/') : params.slug;
+  const { slug } = await params;
+  const fullPath = Array.isArray(slug) ? slug.join('/') : slug;
   const page = await getPageFromDrupal(fullPath);
 
   if (!page) {

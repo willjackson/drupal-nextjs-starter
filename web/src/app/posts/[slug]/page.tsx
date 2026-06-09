@@ -6,15 +6,16 @@ import { formatDistanceToNow, format } from 'date-fns';
 import '@/styles/drupal-content.css';
 
 interface PostPageProps {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }
 
 export const dynamic = 'force-dynamic';
 
 export default async function PostPage({ params }: PostPageProps) {
-  const post = await getArticleFromDrupal(params.slug);
+  const { slug } = await params;
+  const post = await getArticleFromDrupal(slug);
 
   if (!post) {
     notFound();
@@ -173,7 +174,8 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: PostPageProps) {
-  const post = await getArticleFromDrupal(params.slug);
+  const { slug } = await params;
+  const post = await getArticleFromDrupal(slug);
 
   if (!post) {
     return {

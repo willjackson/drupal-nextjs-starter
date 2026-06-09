@@ -1,0 +1,16 @@
+#!/bin/bash
+
+## Description: Stop the Next.js development server (kill the tmux session)
+## Usage: develop-stop
+## Example: "ddev develop-stop"
+
+# Abort if anything fails
+set -e
+
+if tmux has-session -t BlogDev 2>/dev/null; then
+  echo "Stopping BlogDev session..."
+  tmux kill-session -t BlogDev
+  echo "BlogDev session stopped."
+else
+  echo "BlogDev session is not running."
+fi

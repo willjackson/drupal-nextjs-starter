@@ -1,0 +1,128 @@
+#!/bin/bash
+
+## Description: Install AI tools, agents and OpenAI provider for Drupal
+## Usage: init-ai-tools
+## Example: "ddev init-ai-tools"
+
+# Abort if anything fails
+set -e
+
+#-------------------------- Settings --------------------------------
+
+PROJECT_ROOT="/var/www/html"
+export PATH="${PROJECT_ROOT}/drupal/vendor/bin:${PATH}"
+
+DRUPAL_PATH="${PROJECT_ROOT}/drupal"
+OPENAI_KEY_PATH="${DRUPAL_PATH}/private/keys"
+OPENAI_KEY_FILE="${OPENAI_KEY_PATH}/openai_provider.key"
+PRIVATE_PATH="${DRUPAL_PATH}/private"
+
+#-------------------------- END: Settings --------------------------------
+
+#-------------------------- Functions --------------------------------
+
+# Check and setup OpenAI API Key
+setup_openai_key() {
+	echo "Setting up OpenAI API Key..."
+	mkdir -p "${OPENAI_KEY_PATH}"
+
+	if [[ -n "${OPEN_AI_API_KEY}" ]]; then
+		echo "Found OpenAI API Key in environment variable."
+		echo "${OPEN_AI_API_KEY}" > "${OPENAI_KEY_FILE}"
+		echo "OpenAI API Key written to ${OPENAI_KEY_FILE}"
+	else
+		echo "OpenAI API Key not found in environment variable."
+		echo -n "Please provide your OpenAI API Key: "
+		read -s openai_key
+		echo
+
+		if [[ -z "${openai_key}" ]]; then
+			echo "Error: OpenAI API Key cannot be empty."
+			exit 1
+		fi
+
+		echo "${openai_key}" > "${OPENAI_KEY_FILE}"
+		echo "OpenAI API Key written to ${OPENAI_KEY_FILE}"
+	fi
+
+	chmod 600 "${OPENAI_KEY_FILE}"
+}
+
+# Install AI packages via composer
+install_ai_packages() {
+	echo "Installing AI packages via composer..."
+	cd "${DRUPAL_PATH}"
+
+	echo "Installing drupal/saplings_ai_agents..."
+	composer require drupal/saplings_ai_agents
+
+	echo "Installing drupal/saplings_ai_mcp..."
+	composer require drupal/saplings_ai_mcp
+
+	drush cr
+}
+
+# Install AI agents recipe only
+install_ai_agents_recipe() {
+	echo "Installing AI agents recipe..."
+	cd "${DRUPAL_PATH}"
+	drush recipe ../recipes/saplings_ai_agents
+}
+
+# Setup private filesystem configuration
+setup_private_filesystem() {
+	echo "Setting up private filesystem..."
+	mkdir -p "${PRIVATE_PATH}"
+	chmod 777 "${PRIVATE_PATH}"
+	echo "Private directory created and configured at ${PRIVATE_PATH}"
+}
+
+# Check for MCP environment variables and provide instructions
+check_mcp_environment() {
+	if [[ -z "${MCP_ADMIN_USER}" || -z "${MCP_ADMIN_PASS}" ]]; then
+		echo ""
+		echo "============================================================"
+		echo "MCP Environment Variables Required"
+		echo "============================================================"
+		echo ""
+		echo "To install the MCP recipe, set the following environment variables:"
+		echo "  - MCP_ADMIN_USER"
+		echo "  - MCP_ADMIN_PASS"
+		echo ""
+		echo "Please follow these steps:"
+		echo "1. Set the credentials (stored in .ddev/config.local.yaml, gitignored):"
+		echo "   ddev config --web-environment-add=MCP_ADMIN_USER=mcp_admin"
+		echo "   ddev config --web-environment-add=MCP_ADMIN_PASS=your_secure_password"
+		echo ""
+		echo "2. Restart your DDEV environment to load the new variables:"
+		echo "   ddev restart"
+		echo ""
+		echo "3. Run the MCP installation command:"
+		echo "   ddev init-mcp"
+		echo ""
+		echo "============================================================"
+		return 1
+	fi
+	return 0
+}
+
+#-------------------------- END: Functions --------------------------------
+
+#-------------------------- Execution --------------------------------
+
+echo "Initializing AI features for Drupal site..."
+
+setup_openai_key
+install_ai_packages
+setup_private_filesystem
+install_ai_agents_recipe
+
+if ! check_mcp_environment; then
+	echo "AI agents initialization completed successfully!"
+	echo "Please follow the instructions above to complete MCP setup."
+else
+	echo "MCP environment variables are set. You can now run 'ddev init-mcp' to install the MCP recipe."
+	echo "AI agents initialization completed successfully!"
+fi
+
+#-------------------------- END: Execution --------------------------------

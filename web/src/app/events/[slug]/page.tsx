@@ -7,15 +7,16 @@ import { ImageWithFallback } from '@/components/ImageWithFallback';
 import '@/styles/drupal-content.css';
 
 interface EventPageProps {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }
 
 export const dynamic = 'force-dynamic';
 
 export default async function EventPage({ params }: EventPageProps) {
-  const event = await getEventFromDrupal(params.slug);
+  const { slug } = await params;
+  const event = await getEventFromDrupal(slug);
 
   if (!event) {
     notFound();
@@ -243,7 +244,8 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: EventPageProps) {
-  const event = await getEventFromDrupal(params.slug);
+  const { slug } = await params;
+  const event = await getEventFromDrupal(slug);
 
   if (!event) {
     return {

@@ -1,0 +1,42 @@
+# DDEV customizations for the Drupal 11 + Next.js starter.
+#
+# This file mirrors the Docksal setup (.docksal/docksal.yml + docksal.env):
+#   - Drupal is served from the `drupal/web` docroot at https://drupal.<project>.ddev.site
+#   - Next.js (dev server, port 3000 in the container) is served at the primary
+#     URL https://<project>.ddev.site via the nginx reverse proxy in
+#     .ddev/nginx_full/nginx-site.conf
+#
+# The Node.js dev server is started with `ddev develop` (see .ddev/commands/web/develop),
+# which mirrors `fin develop`.
+
+# Node.js version for the Next.js frontend (mirrors NODE_ENV=development tooling).
+nodejs_version: "22"
+
+# tmux is used by the `develop` / `develop-stop` commands, exactly like Docksal.
+webimage_extra_packages:
+    - tmux
+
+# Environment parity with the Docksal cli container.
+web_environment:
+    - NODE_ENV=development
+    # Equivalent of Docksal's VIRTUAL_HOST. The Next.js frontend is served here
+    # and Drupal at drupal.<VIRTUAL_HOST>. Used by the custom commands.
+    - VIRTUAL_HOST=d11-nextjs-starter.ddev.site
+    # Make drush target the Drupal hostname (the primary URL serves Next.js).
+    - DRUSH_OPTIONS_URI=http://drupal.d11-nextjs-starter.ddev.site
+    # MCP / AI credentials (override locally in config.local.yaml). Mirrors
+    # MCP_ADMIN_USER / MCP_ADMIN_PASS / OPEN_AI_API_KEY from docksal.env.
+    - MCP_ADMIN_USER=
+    - MCP_ADMIN_PASS=
+    - OPEN_AI_API_KEY=
+
+# Install our dual-host nginx config (Next.js on the primary URL, Drupal on the
+# drupal.* subdomain). DDEV regenerates nginx_full/nginx-site.conf on every
+# start, so we keep our config under an unmanaged filename and swap it in here.
+hooks:
+    post-start:
+        # Swap in the dual-host nginx config (Next.js primary, Drupal subdomain).
+        - exec: "sudo cp /mnt/ddev_config/nginx-site-custom.conf /etc/nginx/sites-enabled/nginx-site.conf && sudo nginx -t && sudo nginx -s reload"
+        # Route drupal.<project>.ddev.site to the web container (works around the
+        # DDEV v1.24 dotted-additional-hostname routing bug). Traefik hot-reloads.
+        - exec-host: "docker cp .ddev/traefik-custom.yaml ddev-router:/mnt/ddev-global-cache/traefik/config/d11-nextjs-starter.yaml"

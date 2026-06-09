@@ -1,0 +1,51 @@
+#!/bin/bash
+
+## Description: Initialize AI features (AI tools + MCP) in Drupal
+## Usage: init-ai
+## Example: "ddev init-ai"
+
+# Abort if anything fails
+set -e
+
+CMD_DIR="/mnt/ddev_config/commands/web"
+
+echo "============================================================"
+echo "Initializing AI Features for Drupal"
+echo "============================================================"
+echo ""
+
+# Install AI tools (agents, packages, OpenAI setup)
+echo "Step 1: Installing AI Tools and Agents..."
+bash "${CMD_DIR}/init-ai-tools"
+
+echo ""
+echo "============================================================"
+
+# Check if MCP environment variables are set
+if [[ -n "${MCP_ADMIN_USER}" && -n "${MCP_ADMIN_PASS}" ]]; then
+    echo "Step 2: MCP environment variables detected. Installing MCP features..."
+    bash "${CMD_DIR}/init-mcp"
+    echo "============================================================"
+    bash "${CMD_DIR}/mcp"
+else
+    echo "Step 2: MCP environment variables not set."
+    echo ""
+    echo "To complete the MCP setup:"
+    echo "1. Set the credentials (stored in .ddev/config.local.yaml, gitignored):"
+    echo "   ddev config --web-environment-add=MCP_ADMIN_USER=mcp_admin"
+    echo "   ddev config --web-environment-add=MCP_ADMIN_PASS=your_secure_password"
+    echo ""
+    echo "2. Restart your DDEV environment:"
+    echo "   ddev restart"
+    echo ""
+    echo "3. Run the MCP installation:"
+    echo "   ddev init-mcp"
+    echo ""
+    echo "4. Display MCP connection info:"
+    echo "   ddev mcp"
+fi
+
+echo ""
+echo "============================================================"
+echo "AI Features Initialization Complete!"
+echo "============================================================"

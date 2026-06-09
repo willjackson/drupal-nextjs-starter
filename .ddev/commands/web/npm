@@ -1,0 +1,10 @@
+#!/bin/bash
+
+## Description: Run npm commands in the Next.js (web) directory
+## Usage: npm [arguments]
+## Example: "ddev npm install" or "ddev npm run build"
+
+# Abort if anything fails
+set -e
+
+cd /var/www/html/web && npm "$@"

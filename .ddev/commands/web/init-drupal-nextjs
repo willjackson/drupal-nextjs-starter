@@ -1,0 +1,17 @@
+#!/bin/bash
+
+## Description: Apply the saplings_nextjs recipe to configure Drupal for Next.js
+## Usage: init-drupal-nextjs
+## Example: "ddev init-drupal-nextjs"
+
+# Abort if anything fails
+set -e
+
+PROJECT_ROOT="/var/www/html"
+export PATH="${PROJECT_ROOT}/drupal/vendor/bin:${PATH}"
+DRUPAL_PATH="${PROJECT_ROOT}/drupal"
+
+echo "Initializing Drupal 11 for Next.js site..."
+
+cd "${DRUPAL_PATH}"
+drush recipe ../recipes/saplings_nextjs --input=saplings_nextjs.site_url=${VIRTUAL_HOST}
