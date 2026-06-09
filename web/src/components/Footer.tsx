@@ -71,9 +71,6 @@ export function Footer() {
           <p className="text-muted text-sm">
             © {new Date().getFullYear()} {config.site.name}. All rights reserved.
           </p>
-          <p className="text-muted text-sm mt-2 md:mt-0">
-            Built with Next.js and deployed on Vercel
-          </p>
         </div>
       </div>
     </footer>
