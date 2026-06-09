@@ -1,0 +1,7 @@
+# Project drush configuration.
+#
+# The primary DDEV URL serves the Next.js frontend, so point drush at the
+# Drupal hostname (mirrors .docksal/etc/drush/drush.yml). The DRUSH_OPTIONS_URI
+# environment variable set in .ddev/config.nextjs.yaml reinforces this.
+options:
+  uri: 'http://drupal.d11-nextjs-starter.ddev.site'

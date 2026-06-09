@@ -1,0 +1,95 @@
+#!/bin/bash
+
+## Description: Initialize MCP (Model Context Protocol) features in Drupal
+## Usage: init-mcp
+## Example: "ddev init-mcp"
+
+# Abort if anything fails
+set -e
+
+#-------------------------- Settings --------------------------------
+
+PROJECT_ROOT="/var/www/html"
+export PATH="${PROJECT_ROOT}/drupal/vendor/bin:${PATH}"
+DRUPAL_PATH="${PROJECT_ROOT}/drupal"
+
+#-------------------------- END: Settings --------------------------------
+
+#-------------------------- Functions --------------------------------
+
+check_mcp_environment() {
+	if [[ -z "${MCP_ADMIN_USER}" || -z "${MCP_ADMIN_PASS}" ]]; then
+		echo ""
+		echo "============================================================"
+		echo "ERROR: MCP Environment Variables Not Set"
+		echo "============================================================"
+		echo ""
+		echo "The following environment variables are required but not set:"
+		echo "  - MCP_ADMIN_USER"
+		echo "  - MCP_ADMIN_PASS"
+		echo ""
+		echo "Please follow these steps:"
+		echo "1. Set the credentials (stored in .ddev/config.local.yaml, gitignored):"
+		echo "   ddev config --web-environment-add=MCP_ADMIN_USER=mcp_admin"
+		echo "   ddev config --web-environment-add=MCP_ADMIN_PASS=your_secure_password"
+		echo ""
+		echo "2. Restart your DDEV environment to load the new variables:"
+		echo "   ddev restart"
+		echo ""
+		echo "3. Run this command again:"
+		echo "   ddev init-mcp"
+		echo ""
+		echo "============================================================"
+		exit 1
+	fi
+}
+
+install_mcp_user() {
+	echo "Setting up MCP admin user..."
+	cd "${DRUPAL_PATH}"
+
+	if drush user:information "${MCP_ADMIN_USER}" &>/dev/null; then
+		echo "Updating existing user: ${MCP_ADMIN_USER}"
+		drush user:password "${MCP_ADMIN_USER}" "${MCP_ADMIN_PASS}" &>/dev/null
+		drush user:role:add administrator "${MCP_ADMIN_USER}" &>/dev/null
+	else
+		echo "Creating MCP admin user: ${MCP_ADMIN_USER}"
+		drush user:create "${MCP_ADMIN_USER}" \
+			--mail="${MCP_ADMIN_USER}@example.com" \
+			--password="${MCP_ADMIN_PASS}" &>/dev/null
+		drush user:role:add administrator "${MCP_ADMIN_USER}" &>/dev/null
+		drush user:unblock "${MCP_ADMIN_USER}" &>/dev/null
+	fi
+
+	echo "MCP admin user ready."
+}
+
+install_mcp_recipe() {
+	echo "Installing MCP recipe..."
+	cd "${DRUPAL_PATH}"
+	drush recipe ../recipes/saplings_ai_mcp
+}
+
+#-------------------------- END: Functions --------------------------------
+
+#-------------------------- Execution --------------------------------
+
+echo "Initializing MCP (Model Context Protocol) features..."
+
+check_mcp_environment
+install_mcp_user
+install_mcp_recipe
+
+echo ""
+echo "============================================================"
+echo "MCP initialization completed successfully!"
+echo "============================================================"
+echo ""
+echo "Your MCP admin user details:"
+echo "  Username: ${MCP_ADMIN_USER}"
+echo "  Password: ${MCP_ADMIN_PASS}"
+echo ""
+echo "You can now use MCP features with your Drupal site."
+echo ""
+
+#-------------------------- END: Execution --------------------------------

@@ -1,0 +1,24 @@
+#!/bin/bash
+
+## Description: Generate sample content using the DNS Default Content recipe
+## Usage: generate-content
+## Example: "ddev generate-content"
+
+# Abort if anything fails
+set -e
+
+PROJECT_ROOT="/var/www/html"
+export PATH="${PROJECT_ROOT}/drupal/vendor/bin:${PATH}"
+DRUPAL_PATH="${PROJECT_ROOT}/drupal"
+
+echo "Generating sample content using DNS Default Content recipe..."
+
+cd "${DRUPAL_PATH}"
+
+echo "Installing DNS Default Content recipe package..."
+composer require willjackson/dns_default_content
+
+echo "Running DNS Default Content recipe..."
+drush recipe ../recipes/dns_default_content
+
+echo "Sample content generation complete!"

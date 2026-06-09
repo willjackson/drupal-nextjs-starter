@@ -1,0 +1,78 @@
+#!/bin/bash
+
+## Description: Display MCP server connection information for the Drupal site
+## Usage: mcp
+## Example: "ddev mcp"
+
+# Abort if anything fails
+set -e
+
+PROJECT_ROOT="/var/www/html"
+export PATH="${PROJECT_ROOT}/drupal/vendor/bin:${PATH}"
+DRUPAL_PATH="${PROJECT_ROOT}/drupal"
+
+check_mcp_module_status() {
+    echo "Checking MCP module status..."
+    cd "${DRUPAL_PATH}"
+
+    if ! command -v drush &> /dev/null; then
+        echo "Error: Drush command not found. Run 'ddev init-site' first."
+        exit 1
+    fi
+
+    if drush pm:list --status=enabled --type=module | grep -q "mcp"; then
+        echo "✓ MCP module is ENABLED"
+        return 0
+    else
+        echo "✗ MCP module is NOT ENABLED"
+        echo ""
+        echo "To enable the MCP module, run:"
+        echo "  ddev drush en mcp -y"
+        return 1
+    fi
+}
+
+display_mcp_config() {
+    echo ""
+    echo "=== MCP Server Configuration ==="
+    echo ""
+    echo "Add this configuration to your MCP client (e.g., Claude Desktop):"
+    echo ""
+
+    virtual_host="${VIRTUAL_HOST:-d11-nextjs-starter.ddev.site}"
+
+    cat <<EOF
+{
+  "mcpServers": {
+    "mcp-server-drupal": {
+      "command": "docker",
+      "args": [
+        "run", "-i", "--rm",
+        "-e", "DRUPAL_AUTH_USER=${MCP_ADMIN_USER}",
+        "-e", "DRUPAL_AUTH_PASSWORD=${MCP_ADMIN_PASS}",
+        "--network=host", "ghcr.io/omedia/mcp-server-drupal:latest",
+        "--drupal-url=https://drupal.${virtual_host}",
+        "--unsafe-net"
+      ],
+      "env": {
+        "DRUPAL_AUTH_USER": "${MCP_ADMIN_USER}",
+        "DRUPAL_AUTH_PASSWORD": "${MCP_ADMIN_PASS}"
+      }
+    }
+  }
+}
+EOF
+}
+
+echo "MCP Server Connection Information"
+echo "================================="
+echo ""
+
+if check_mcp_module_status; then
+    display_mcp_config
+else
+    echo ""
+    echo "Enable the MCP module first to get the connection configuration."
+fi
+
+echo ""

@@ -1,20 +1,22 @@
 # Drupal 11 + Next.js Starter Kit
 
-A modern headless CMS starter combining Drupal 11 as the content management backend with Next.js 15 as the frontend
+A modern headless CMS starter combining Drupal 11 as the content management backend with Next.js 16 as the frontend
 framework.
 
 ## Features
 
 - **Backend**: Drupal 11 with JSON:API, Simple OAuth authentication
-- **Frontend**: Next.js 15 with App Router, TypeScript, Tailwind CSS
+- **Frontend**: Next.js 16 with App Router, TypeScript, Tailwind CSS
 - **Content Types**: Pages, Articles, Events with image fields
 - **Authentication**: OAuth2 client credentials flow
-- **Development**: Docksal containerized environment
+- **Development**: Docksal **or** DDEV containerized environment (feature parity)
 
 ## Prerequisites
 
-- [Docksal](https://docksal.io/) installed and running
-- Docker and Docker Compose (installed with Docksal)
+Use **either** Docksal or DDEV — both provide the same custom commands and workflow.
+
+- [DDEV](https://ddev.com/) (recommended) **or** [Docksal](https://docksal.io/)
+- Docker (Docker Desktop, OrbStack, Colima, etc.)
 
 ## Installation
 
@@ -36,6 +38,44 @@ fin init --ai
 
 # Initialize with both content and AI Tools
 fin init --content --ai
+```
+
+### Using DDEV instead of Docksal
+
+The project ships with a DDEV configuration (`.ddev/`) that mirrors the Docksal
+setup command-for-command. Every `fin <cmd>` has a `ddev <cmd>` equivalent.
+
+```bash
+git clone git@github.com:willjackson/drupal-nextjs-starter.git d11-nextjs-starter
+cd d11-nextjs-starter
+ddev init                  # = fin init
+```
+
+**Initialize with Options:**
+```bash
+ddev init --content        # Initialize with sample content
+ddev init --ai             # Initialize with AI Tools
+ddev init --content --ai   # Initialize with both
+```
+
+**Access Points (DDEV):**
+- **Next.js Frontend**: https://d11-nextjs-starter.ddev.site
+- **Drupal Admin**: https://drupal.d11-nextjs-starter.ddev.site
+
+> The primary URL serves the Next.js dev server (reverse-proxied to port 3000),
+> and the `drupal.` subdomain serves Drupal — mirroring the Docksal routing.
+> Start the Next.js dev server with `ddev develop` if it isn't already running
+> (`ddev init` starts it for you).
+
+#### MCP credentials (DDEV)
+
+Set `MCP_ADMIN_USER` / `MCP_ADMIN_PASS` before running `ddev init-mcp` (store them
+in `.ddev/config.local.yaml`, which is gitignored):
+
+```bash
+ddev config --web-environment-add=MCP_ADMIN_USER=mcp_admin
+ddev config --web-environment-add=MCP_ADMIN_PASS=secure_password_for_mcp
+ddev restart
 ```
 
 ### 2. Install Optional Components Later
@@ -108,36 +148,32 @@ fin develop --background # Run in background
 │   │   └── lib/          # Utilities and API functions
 │   ├── package.json      # Node dependencies
 │   └── .env.local        # Environment variables
-└── .docksal/             # Docksal configuration
+├── .docksal/             # Docksal configuration
+└── .ddev/                # DDEV configuration (mirrors Docksal)
 ```
 
 ## Key Commands
 
-**Docksal:**
-```bash
-fin start                # Start containers
-fin stop                 # Stop containers
-fin restart              # Restart containers
-fin init                 # Initialize project (basic)
-fin init --content       # Initialize with sample content
-fin init --ai            # Initialize with AI Tools
-fin init --content --ai  # Initialize with both content and AI
-fin init-ai              # Install AI Tools separately
-fin generate-content     # Install sample content separately
-fin mcp                  # Displays MCP connection information, once installed
-```
+Docksal and DDEV expose the same commands. Pick the column for your tooling.
 
-**Drupal:**
-```bash
-fin drush <command>    # Run Drush commands
-fin composer <command> # Run Composer commands
-```
-
-**Next.js:**
-```bash
-fin develop              # Development server
-fin develop --background # Run in background
-```
+| Task | Docksal | DDEV |
+| --- | --- | --- |
+| Start containers | `fin start` | `ddev start` |
+| Stop containers | `fin stop` | `ddev stop` |
+| Restart containers | `fin restart` | `ddev restart` |
+| Initialize project | `fin init` | `ddev init` |
+| Initialize + sample content | `fin init --content` | `ddev init --content` |
+| Initialize + AI Tools | `fin init --ai` | `ddev init --ai` |
+| Install AI Tools separately | `fin init-ai` | `ddev init-ai` |
+| Install sample content | `fin generate-content` | `ddev generate-content` |
+| Show MCP connection info | `fin mcp` | `ddev mcp` |
+| Show site links | `fin show-links` | `ddev show-links` |
+| Run Drush | `fin drush <cmd>` | `ddev drush <cmd>` |
+| Run Composer | `fin composer <cmd>` | `ddev composer <cmd>` |
+| Run npm (web dir) | `fin npm <cmd>` | `ddev npm <cmd>` |
+| Next.js dev server | `fin develop` | `ddev develop` |
+| Next.js dev (background) | `fin develop --background` | `ddev develop --background` |
+| Stop Next.js dev server | `fin develop-stop` | `ddev develop-stop` |
 
 ## Content Types
 

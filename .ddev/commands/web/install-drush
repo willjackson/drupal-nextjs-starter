@@ -1,0 +1,13 @@
+#!/bin/bash
+
+## Description: Ensure the Drupal vendor/bin directory (drush) is on the shell PATH
+## Usage: install-drush
+## Example: "ddev install-drush"
+
+# Mirrors Docksal's install-drush. DDEV already adds the composer_root
+# vendor/bin (drupal/vendor/bin) to PATH automatically, so this is mostly for
+# parity with the Docksal workflow.
+if ! grep -q "drupal/vendor/bin" "${HOME}/.bashrc" 2>/dev/null; then
+	echo 'export PATH=$PATH:/var/www/html/drupal/vendor/bin' >> "${HOME}/.bashrc"
+fi
+echo "drush is available on PATH ($(command -v drush || echo 'not yet installed - run ddev init-site'))."

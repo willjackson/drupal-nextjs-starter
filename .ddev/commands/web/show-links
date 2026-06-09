@@ -1,0 +1,29 @@
+#!/bin/bash
+
+## Description: Display site links for Drupal and the Next.js frontend
+## Usage: show-links
+## Example: "ddev show-links"
+
+# Abort if anything fails
+set -e
+
+PROJECT_ROOT="/var/www/html"
+export PATH="${PROJECT_ROOT}/drupal/vendor/bin:${PATH}"
+DRUPAL_PATH="${PROJECT_ROOT}/drupal"
+
+echo "🔗 Site Links:"
+echo "=============="
+
+cd "${DRUPAL_PATH}"
+
+echo "Drupal Admin (login link):"
+drush uli
+
+echo ""
+echo "Drupal:"
+echo "  http://drupal.${VIRTUAL_HOST}"
+echo "  https://drupal.${VIRTUAL_HOST}"
+echo ""
+echo "NextJS Site:"
+echo "  http://${VIRTUAL_HOST}"
+echo "  https://${VIRTUAL_HOST}"

@@ -1,0 +1,62 @@
+# Maintained Traefik routing for this project.
+#
+# DDEV v1.24 regenerates .ddev/traefik/config/d11-nextjs-starter.yaml on every
+# start (it ignores the removed #ddev-generated marker), and it mis-attaches the
+# dotted additional hostname "drupal.d11-nextjs-starter" to the xhgui router
+# instead of the web router. So the post-start hook in .ddev/config.nextjs.yaml
+# copies THIS file into the ddev-router's config directory (Traefik watches it
+# and hot-reloads), ensuring drupal.d11-nextjs-starter.ddev.site is routed to the
+# web container on ports 80/443. The web container's nginx then serves Drupal for
+# that host and the Next.js dev server for the primary host.
+
+http:
+  routers:
+    d11-nextjs-starter-web-80-http:
+      entrypoints:
+        - http-80
+      rule: HostRegexp(`^d11-nextjs-starter\.ddev\.site$`) || HostRegexp(`^drupal\.d11-nextjs-starter\.ddev\.site$`)
+      service: "d11-nextjs-starter-web-80"
+      ruleSyntax: v3
+      tls: false
+    d11-nextjs-starter-web-8025-http:
+      entrypoints:
+        - http-8025
+      rule: HostRegexp(`^d11-nextjs-starter\.ddev\.site$`)
+      service: "d11-nextjs-starter-web-8025"
+      ruleSyntax: v3
+      tls: false
+    d11-nextjs-starter-web-80-https:
+      entrypoints:
+        - http-443
+      rule: HostRegexp(`^d11-nextjs-starter\.ddev\.site$`) || HostRegexp(`^drupal\.d11-nextjs-starter\.ddev\.site$`)
+      service: "d11-nextjs-starter-web-80"
+      ruleSyntax: v3
+      tls: true
+    d11-nextjs-starter-web-8025-https:
+      entrypoints:
+        - http-8026
+      rule: HostRegexp(`^d11-nextjs-starter\.ddev\.site$`)
+      service: "d11-nextjs-starter-web-8025"
+      ruleSyntax: v3
+      tls: true
+
+  middlewares:
+    d11-nextjs-starter-redirectHttps:
+      redirectScheme:
+        scheme: https
+        permanent: true
+
+  services:
+    d11-nextjs-starter-web-80:
+      loadbalancer:
+        servers:
+          - url: http://ddev-d11-nextjs-starter-web:80
+    d11-nextjs-starter-web-8025:
+      loadbalancer:
+        servers:
+          - url: http://ddev-d11-nextjs-starter-web:8025
+
+tls:
+  certificates:
+    - certFile: /mnt/ddev-global-cache/traefik/certs/d11-nextjs-starter.crt
+      keyFile: /mnt/ddev-global-cache/traefik/certs/d11-nextjs-starter.key
